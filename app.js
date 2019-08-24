@@ -14,25 +14,15 @@ new Vue({
 			this.turns = [];
 		},
 		attack: function(){
-			var damage = this.calculateDamage(3,10);
-			this.monsterHealth -= damage;
-			this.turns.unshift({
-				isPlayer: true,
-				text: 'Player hits Monster for -' + damage,
-			});
-
-			if(this.checkWin()){
-				return;
-			}
-			this.monsterAttacks();
+			this.playersAttact(3, 10);
 		},
 		specialAttack: function(){
-			var damage = this.calculateDamage(10, 20);
+			this.playersAttact(10, 20, 'hard');
+		},
+		playersAttact: function(minDamage, maxDamage, attackType = '') {
+			var damage = this.calculateDamage(minDamage, maxDamage);
 			this.monsterHealth -= damage;
-			this.turns.unshift({
-				isPlayer: true,
-				text: 'Player hits Monster hard for -' + damage,
-			});
+			this.turnsUnshift(true, 'Player hits Monster '+attackType+' -' + damage);
 			if(this.checkWin()){
 				return;
 			}
@@ -44,10 +34,7 @@ new Vue({
 			} else {
 				this.playerHealth = 100;
 			}
-			this.turns.unshift({
-				isPlayer: true,
-				text: 'Player heals for 10',
-			});
+			this.turnsUnshift(true, 'Player heals for 10');
 			this.monsterAttacks();
 		},
 		giveUp: function(){
@@ -56,12 +43,14 @@ new Vue({
 		monsterAttacks: function(){
 			var damage = this.calculateDamage(5,12);
 			this.playerHealth -= damage;
-			this.turns.unshift({
-				isPlayer: false,
-				text: 'Monster hits Player for -' + damage,
-			});
-
+			this.turnsUnshift(false, 'Monster hits Player for -' + damage);
 			this.checkWin();
+		},
+		turnsUnshift: function(isPlayer, text){
+			this.turns.unshift({
+				isPlayer: isPlayer,
+				text: text,
+			});
 		},
 		calculateDamage: function(min, max){
 			return Math.max(Math.floor(Math.random() * max) + 1, min);
